@@ -1,28 +1,24 @@
 "use client";
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-
-const links = [
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
-  { label: "Contact", href: "#contact" },
-];
+import { navLinks } from "@/data/profile";
+import { useActiveSection } from "@/hooks/useActiveSection";
+import { useEffect, useRef } from "react";
 
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("#about");
+  const { scrolled, active } = useActiveSection(navLinks);
+  const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let ticking = false;
     const onScroll = () => {
-      setScrolled(window.scrollY > 60);
-      const sections = links.map((l) => l.href.replace("#", ""));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i]);
-        if (el && el.getBoundingClientRect().top <= 200) {
-          setActive("#" + sections[i]);
-          break;
-        }
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (barRef.current) {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            barRef.current.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -30,28 +26,26 @@ export default function Nav() {
   }, []);
 
   return (
-    <motion.nav
-      className={`nav${scrolled ? " scrolled" : ""}`}
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1] }}
-    >
-      <div className="container nav-inner">
-        <a href="#" className="nav-logo">
-          <span>J</span>ed.
-        </a>
-        <div className="nav-links">
-          {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className={`nav-link${active === l.href ? " active" : ""}`}
-            >
-              {l.label}
-            </a>
-          ))}
+    <>
+      <div className="scroll-progress-bar" ref={barRef} />
+      <nav className={`nav${scrolled ? " scrolled" : ""}`}>
+        <div className="container nav-inner">
+          <a href="#" className="nav-logo">
+            <span>J</span>ed.
+          </a>
+          <div className="nav-links">
+            {navLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className={`nav-link${active === l.href ? " active" : ""}`}
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
-    </motion.nav>
+      </nav>
+    </>
   );
 }
