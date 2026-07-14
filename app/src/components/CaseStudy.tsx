@@ -1,6 +1,6 @@
 "use client";
 import { motion, animate } from "framer-motion";
-import { sectionFadeUp, staggerContainer, staggerItem, easeConfig } from "@/lib/animations";
+import { sectionFadeUp, easeConfig } from "@/lib/animations";
 import { useCarousel } from "@/hooks/useCarousel";
 import { screenshots, techBadges, features, caseStudyStats, floatCards, APK_URL, GITHUB_URL } from "@/data/case-study";
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "@/icons/ui";

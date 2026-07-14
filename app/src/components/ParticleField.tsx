@@ -64,13 +64,16 @@ export default function ParticleField() {
       raf = requestAnimationFrame(draw);
     };
 
+    const onResize = () => { resize(); init(); };
+
     resize();
     init();
     draw();
-    window.addEventListener("resize", () => { resize(); init(); });
+    window.addEventListener("resize", onResize);
 
     return () => {
       cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
     };
   }, [reduced]);
 

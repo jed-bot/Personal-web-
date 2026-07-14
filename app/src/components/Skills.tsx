@@ -1,12 +1,11 @@
 "use client";
 import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { staggerContainer, staggerItem, sectionFadeUp } from "@/lib/animations";
 import { skills } from "@/data/tech";
 
 export default function Skills() {
   const sectionRef = useRef(null);
-  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
 
   return (
     <section className="section" id="skills" ref={sectionRef}>

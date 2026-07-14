@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { sectionFadeUp, staggerContainer, staggerItem, sectionFadeLeft, sectionFadeRight } from "@/lib/animations";
 import { channels, EMAIL } from "@/data/profile";
@@ -8,6 +8,8 @@ import { CopyIcon, CheckIcon } from "@/icons/social";
 export default function Contact() {
   const [copied, setCopied] = useState(false);
   const [ripples, setRipples] = useState<{ x: number; y: number; id: number }[]>([]);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rippleTimerRefs = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
   const copyEmail = async (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -15,12 +17,17 @@ export default function Contact() {
     const y = e.clientY - rect.top;
     const id = Date.now();
     setRipples((prev) => [...prev, { x, y, id }]);
-    setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== id)), 600);
+    const rippleTimer = setTimeout(() => {
+      setRipples((prev) => prev.filter((r) => r.id !== id));
+      rippleTimerRefs.current.delete(id);
+    }, 600);
+    rippleTimerRefs.current.set(id, rippleTimer);
 
     try {
       await navigator.clipboard.writeText(EMAIL);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       const textarea = document.createElement("textarea");
       textarea.value = EMAIL;
@@ -29,7 +36,8 @@ export default function Contact() {
       document.execCommand("copy");
       document.body.removeChild(textarea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
     }
   };
 
