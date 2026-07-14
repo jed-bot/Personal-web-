@@ -5,7 +5,7 @@ import { useCarousel } from "@/hooks/useCarousel";
 import { screenshots, techBadges, features, caseStudyStats, floatCards, APK_URL, GITHUB_URL } from "@/data/case-study";
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "@/icons/ui";
 import { GitHubIcon } from "@/icons/social";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 
 function CaseStudyStat({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef(null);
@@ -44,6 +44,23 @@ function FloatCard({ icon, label, className }: { icon: React.ReactNode; label: s
 
 export default function CaseStudy() {
   const { current, prev, next, goTo } = useCarousel(screenshots.length);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+    if (diff > threshold) next();
+    else if (diff < -threshold) prev();
+  }, [next, prev]);
 
   return (
     <section className="section" id="projects">
@@ -63,7 +80,7 @@ export default function CaseStudy() {
         </motion.div>
 
         <motion.div
-          className="case-study"
+          className="case-study reveal-blur"
           variants={sectionFadeUp}
           initial="hidden"
           whileInView="visible"
@@ -73,7 +90,7 @@ export default function CaseStudy() {
             <div className="case-study-glow" />
           </div>
           <div className="case-study-inner">
-            <div className="case-study-phones">
+            <div className="case-study-phones parallax-slow" style={{ perspective: "1000px", transformStyle: "preserve-3d" } as React.CSSProperties}>
               <div className="phone-mockup phone-mockup--back phone-mockup--blur-1">
                 <img src="/Screenshot_3.jpg" alt="" />
               </div>
@@ -90,13 +107,20 @@ export default function CaseStudy() {
                   <ChevronLeftIcon />
                 </button>
 
-                <div className="phone-mockup phone-mockup--main">
+                <div
+                  className="phone-mockup phone-mockup--main"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  style={{ touchAction: "pan-y", cursor: "grab" } as React.CSSProperties}
+                >
                   <div className="phone-mockup-glow" />
                   <img
                     key={current}
                     src={screenshots[current].src}
                     alt={screenshots[current].alt}
                     className="phone-mockup-img"
+                    draggable={false}
                   />
                 </div>
 
@@ -125,7 +149,7 @@ export default function CaseStudy() {
               ))}
             </div>
 
-            <div className="case-study-content">
+            <div className="case-study-content reveal-up">
               <span className="case-study-label">Lutong Bahay</span>
               <h2 className="case-study-title">
                 Filipino Recipe<br />Recognition App
@@ -140,29 +164,39 @@ export default function CaseStudy() {
                 backend APIs to AI integration and deployment.
               </p>
 
-              <div className="tech-badges">
-                {techBadges.map((t) => (
-                  <span key={t.name} className="tech-badge">
+              <div className="tech-badges" data-stagger="">
+                {techBadges.map((t, i) => (
+                  <span key={t.name} className="tech-badge" style={{ "--d": i } as React.CSSProperties}>
                     {t.icon} {t.name}
                   </span>
                 ))}
               </div>
 
-              <div className="feature-highlights">
-                {features.map((f) => (
-                  <div key={f.title} className="feature-card">
+              <div className="feature-highlights" data-stagger="" style={{ perspective: "800px", transformStyle: "preserve-3d" } as React.CSSProperties}>
+                {features.map((f, i) => (
+                  <motion.div
+                    key={f.title}
+                    className="feature-card"
+                    style={{ "--d": i } as React.CSSProperties}
+                    whileHover={{
+                      y: -6,
+                      scale: 1.02,
+                      boxShadow: "0 12px 40px rgba(34,197,94,0.15)",
+                      transition: { type: "spring", stiffness: 400, damping: 25 },
+                    }}
+                  >
                     <div className="feature-card-icon">{f.icon}</div>
                     <div>
                       <h4>{f.title}</h4>
                       <p>{f.desc}</p>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
-              <div className="case-study-stats">
-                {caseStudyStats.map((s) => (
-                  <div key={s.label} className="case-stat">
+              <div className="case-study-stats" data-stagger="">
+                {caseStudyStats.map((s, i) => (
+                  <div key={s.label} className="case-stat" style={{ "--d": i } as React.CSSProperties}>
                     <CaseStudyStat target={s.num} suffix={s.suffix || ""} />
                     <div className="case-stat-label">{s.label}</div>
                   </div>
@@ -174,7 +208,7 @@ export default function CaseStudy() {
                   href={APK_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-primary"
+                  className="btn btn-primary btn-pop"
                 >
                   Download APK
                   <DownloadIcon />
@@ -183,7 +217,7 @@ export default function CaseStudy() {
                   href={GITHUB_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-secondary"
+                  className="btn btn-secondary btn-pop"
                 >
                   View Source
                   <GitHubIcon />

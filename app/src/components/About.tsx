@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { staggerContainer, staggerItem, sectionFadeUp, sectionFadeLeft } from "@/lib/animations";
 import { stack } from "@/data/tech";
 import { aboutStats } from "@/data/profile";
@@ -41,8 +41,18 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
 }
 
 export default function About() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+
+  const stackY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const textY = useTransform(scrollYProgress, [0, 1], [20, -20]);
+  const statsY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+
   return (
-    <section className="section" id="about">
+    <section className="section" id="about" ref={sectionRef}>
       <div className="container">
         <div className="about-grid">
           <motion.div
@@ -51,13 +61,14 @@ export default function About() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
+            style={{ y: stackY } as any}
           >
             {stack.map((s) => (
-              <div key={s.category} className="about-stack-group">
+              <div key={s.category} className="about-stack-group" data-stagger="">
                 <h4 className="about-stack-cat">{s.category}</h4>
                 <div className="about-stack-tags">
-                  {s.items.map((t) => (
-                    <span key={t.name} className="tag tag-icon">
+                  {s.items.map((t, i) => (
+                    <span key={t.name} className="tag tag-icon" style={{ "--d": i } as React.CSSProperties}>
                       <span className="tag-icon-svg">{t.icon}</span>
                       {t.name}
                     </span>
@@ -67,7 +78,7 @@ export default function About() {
             ))}
           </motion.div>
 
-          <div className="about-text">
+          <motion.div className="about-text" style={{ y: textY } as any}>
             <motion.span
               className="tag"
               variants={sectionFadeUp}
@@ -77,6 +88,7 @@ export default function About() {
             >
               About Me
             </motion.span>
+            <div style={{ height: "1rem" }} />
             <motion.h3
               variants={sectionFadeUp}
               initial="hidden"
@@ -86,6 +98,7 @@ export default function About() {
             >
               Crafting Digital Experiences That Matter
             </motion.h3>
+            <div style={{ height: "0.75rem" }} />
             <motion.p
               variants={sectionFadeUp}
               initial="hidden"
@@ -117,15 +130,26 @@ export default function About() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-60px" }}
+              style={{ y: statsY, perspective: "800px", transformStyle: "preserve-3d" } as any}
             >
               {aboutStats.map((s) => (
-                <motion.div key={s.label} className="about-stat" variants={staggerItem}>
+                <motion.div
+                  key={s.label}
+                  className="about-stat"
+                  variants={staggerItem}
+                  whileHover={{
+                    y: -6,
+                    scale: 1.03,
+                    boxShadow: "0 12px 40px rgba(34,197,94,0.12)",
+                    transition: { type: "spring", stiffness: 400, damping: 25 },
+                  }}
+                >
                   <AnimatedCounter target={s.num} suffix={s.suffix || ""} />
                   <div className="about-stat-label">{s.label}</div>
                 </motion.div>
               ))}
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

@@ -32,6 +32,8 @@ export default function Footer() {
               className="footer-social"
               aria-label={s.label}
               variants={staggerItem}
+              whileHover={{ y: -4, borderColor: "rgba(34,197,94,0.4)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
             >
               {s.icon}
             </motion.a>

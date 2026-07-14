@@ -1,11 +1,15 @@
 "use client";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { staggerContainer, staggerItem, sectionFadeUp } from "@/lib/animations";
 import { skills } from "@/data/tech";
 
 export default function Skills() {
+  const sectionRef = useRef(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
+
   return (
-    <section className="section" id="skills">
+    <section className="section" id="skills" ref={sectionRef}>
       <div className="container">
         <motion.div
           className="section-header"
@@ -21,7 +25,7 @@ export default function Skills() {
           </p>
         </motion.div>
         <motion.div
-          className="skills-grid"
+          className="skills-vortex"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
@@ -29,7 +33,7 @@ export default function Skills() {
         >
           {skills.map((s) => (
             <motion.div key={s.title} variants={staggerItem}>
-              <div className="card skill-card">
+              <div className="card skill-card glass-deep">
                 <div className="skill-icon">{s.icon}</div>
                 <h3>{s.title}</h3>
                 <div className="skill-tags">
@@ -41,6 +45,7 @@ export default function Skills() {
                   ))}
                 </div>
                 <div className="skill-card-glow" />
+                <div className="skill-card-reflection" />
               </div>
             </motion.div>
           ))}

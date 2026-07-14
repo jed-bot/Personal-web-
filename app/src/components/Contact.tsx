@@ -75,6 +75,8 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   className="contact-channel"
                   variants={staggerItem}
+                  whileHover={{ x: 6, color: "#fff" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 24 }}
                 >
                   {c.icon}
                   <span>{c.label}</span>
@@ -96,7 +98,7 @@ export default function Contact() {
             </p>
             <button
               type="button"
-              className={`copy-btn ripple-btn ${copied ? "copy-btn--copied" : ""}`}
+              className={`copy-btn ripple-btn btn-pop ${copied ? "copy-btn--copied" : ""}`}
               onClick={copyEmail}
             >
               {copied ? <CheckIcon /> : <CopyIcon />}
