@@ -386,6 +386,14 @@ p { color: var(--text-secondary); line-height: 1.5; }
   100% { opacity: 0.8; }
 }
 
+/* Hero letter tilt (zero React re-renders — driven by --hero-rx/ry on .hero) */
+.hero-letter {
+  display: inline-block;
+  transform: perspective(600px) rotateX(var(--hero-rx, 0deg));
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 30ms);
+}
+
 /* Scroll indicator */
 .scroll-indicator {
   position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
@@ -439,9 +447,9 @@ p { color: var(--text-secondary); line-height: 1.5; }
 
 /* ─── Case Study ─────────────────────────────────────────────────── */
 .case-study {
-  position: relative; border-radius: var(--radius-2xl); overflow: hidden;
+  position: relative; border-radius: var(--radius-xl); overflow: hidden;
   background: var(--glass); border: 1px solid var(--border);
-  padding: 6rem;
+  padding: 3.5rem;
 }
 .case-study-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .case-study-glow {
@@ -456,12 +464,12 @@ p { color: var(--text-secondary); line-height: 1.5; }
 }
 .case-study-inner {
   position: relative; z-index: 1; display: grid;
-  grid-template-columns: 1.5fr 1fr; gap: 6rem; align-items: center;
+  grid-template-columns: 1.2fr 1fr; gap: 3.5rem; align-items: center;
 }
-.case-study-phones { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 520px; }
+.case-study-phones { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 380px; }
 .phone-gallery { display: flex; align-items: center; gap: 1rem; }
 .phone-arrow {
-  width: 40px; height: 40px; min-width: 40px; display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; min-width: 34px; display: flex; align-items: center; justify-content: center;
   border-radius: 50%; border: 1px solid var(--border); background: var(--glass);
   color: var(--text-muted); z-index: 5;
   transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s var(--ease-elastic);
@@ -483,7 +491,7 @@ p { color: var(--text-secondary); line-height: 1.5; }
 }
 .phone-mockup img { width: 100%; display: block; }
 .phone-mockup-img { width: 100%; display: block; }
-.phone-mockup--main { width: 280px; z-index: 2; position: relative; animation: phone-float 7s ease-in-out infinite; }
+.phone-mockup--main { width: 220px; z-index: 2; position: relative; animation: phone-float 7s ease-in-out infinite; }
 @keyframes phone-float {
   0%, 100% { transform: translateY(0) translateZ(0); }
   50% { transform: translateY(-10px) translateZ(0); }
@@ -493,11 +501,11 @@ p { color: var(--text-secondary); line-height: 1.5; }
   background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 70%); z-index: -1;
 }
 .phone-mockup--back {
-  position: absolute; width: 220px; opacity: 0.25;
+  position: absolute; width: 170px; opacity: 0.25;
   z-index: 1; pointer-events: none;
 }
-.phone-mockup--blur-1 { transform: rotate(-12deg) translateX(-80px) translateY(-20px); }
-.phone-mockup--blur-2 { transform: rotate(8deg) translateX(80px) translateY(20px); }
+.phone-mockup--blur-1 { transform: rotate(-12deg) translateX(-60px) translateY(-15px); }
+.phone-mockup--blur-2 { transform: rotate(8deg) translateX(60px) translateY(15px); }
 .float-card {
   position: absolute; display: flex; align-items: center; gap: 0.5rem;
   padding: 0.5rem 1rem;   background: rgba(5,8,22,0.9);
@@ -507,32 +515,32 @@ p { color: var(--text-secondary); line-height: 1.5; }
 }
 .float-1 { top: 12%; left: -10%; }
 .float-2 { bottom: 18%; right: -5%; }
-.case-study-content { display: flex; flex-direction: column; gap: 1.5rem; }
+.case-study-content { display: flex; flex-direction: column; gap: 1rem; }
 .case-study-label {
   font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--accent); display: inline-flex; align-items: center; gap: 0.5rem;
 }
 .case-study-label::before { content: ''; width: 1.5em; height: 2px; background: var(--accent); }
-.case-study-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
-.case-study-subtitle { font-size: 1.1rem; color: var(--accent-2); font-weight: 500; }
-.case-study-desc { color: var(--text-secondary); line-height: 1.8; max-width: 520px; }
+.case-study-title { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.case-study-subtitle { font-size: 0.95rem; color: var(--accent-2); font-weight: 500; }
+.case-study-desc { color: var(--text-secondary); line-height: 1.7; max-width: 480px; font-size: 0.95rem; }
 .tech-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .tech-badge {
-  display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem;
-  font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.85rem;
+  font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
   background: var(--glass); border: 1px solid var(--border); border-radius: var(--radius-pill);
   transition: transform 0.3s var(--ease-elastic), box-shadow 0.3s ease;
 }
 .tech-badge:hover { transform: translateY(-4px); box-shadow: 0 0 24px rgba(34,197,94,0.22); }
 .tech-badge svg { color: var(--accent); flex-shrink: 0; width: 16px; height: 16px; }
-.feature-highlights { display: flex; flex-direction: column; gap: 1rem; }
+.feature-highlights { display: flex; flex-direction: column; gap: 0.75rem; }
 .feature-card {
-  display: flex; gap: 1rem; padding: 1rem; border-radius: var(--radius-md);
+  display: flex; gap: 0.75rem; padding: 0.75rem; border-radius: var(--radius-md);
   border: 1px solid transparent; transition: border-color 0.3s ease, background 0.3s ease, transform 0.3s var(--ease-elastic);
 }
 .feature-card:hover { background: rgba(255,255,255,0.02); border-color: rgba(34,197,94,0.25); transform: translateX(6px); }
 .feature-card-icon {
-  width: 40px; height: 40px; min-width: 40px; display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; min-width: 34px; display: flex; align-items: center; justify-content: center;
   border-radius: var(--radius-sm); background: rgba(34,197,94,0.08);
   border: 1px solid rgba(34,197,94,0.12); color: var(--accent);
   transition: transform 0.3s var(--ease-elastic);
@@ -545,17 +553,17 @@ p { color: var(--text-secondary); line-height: 1.5; }
   50% { transform: translateY(-4px) translateZ(0); }
 }
 .feature-card:hover .feature-card-icon { transform: scale(1.12) rotate(5deg); }
-.feature-card-icon svg { width: 20px; height: 20px; }
-.feature-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.15rem; }
-.feature-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+.feature-card-icon svg { width: 17px; height: 17px; }
+.feature-card h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.1rem; }
+.feature-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
 .case-study-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
-  padding-top: 1.5rem; border-top: 1px solid var(--divider);
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
+  padding-top: 1rem; border-top: 1px solid var(--divider);
 }
 .case-stat { text-align: center; }
-.case-stat-num { font-size: 1.5rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.25rem; }
-.case-stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.case-study-actions { display: flex; gap: 1rem; flex-wrap: wrap; padding-top: 0.5rem; }
+.case-stat-num { font-size: 1.25rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.15rem; }
+.case-stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.case-study-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; padding-top: 0.25rem; }
 
 /* ─── Contact ────────────────────────────────────────────────────── */
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; }
@@ -799,14 +807,104 @@ textarea.input { min-height: 140px; resize: vertical; }
   transform: translateY(-4px);
 }
 
-/* ─── Magnetic tilt card (pair with a tiny JS pointermove handler that
-   sets --mx / --my as percentages, e.g. el.style.setProperty('--mx', x)) */
+/* ─── Luxury 3D tilt card ──────────────────────────────────────────
+   Pairs with useTilt hook which sets --mx / --my (0-100).
+   Features: spring-based tilt, specular highlight, dynamic shadow,
+   edge glow, inner depth pop. GPU-composited, zero React re-renders. */
 .tilt-card {
-  transform: perspective(900px)
-    rotateX(calc((var(--my, 50) - 50) * -0.15deg))
-    rotateY(calc((var(--mx, 50) - 50) * 0.15deg))
-    translateZ(0);
-  transition: transform 0.35s var(--ease-smooth);
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0);
+  transition: transform 0.15s var(--ease-smooth), border-color 0.4s var(--ease-elastic), box-shadow 0.4s var(--ease-elastic), background 0.3s ease;
+  will-change: transform;
+  contain: layout style;
+}
+
+/* Specular highlight — follows cursor position */
+.tilt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    circle 300px at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(34, 197, 94, 0.04) 50%,
+    transparent 70%
+  );
+  mix-blend-mode: soft-light;
+}
+.tilt-card.is-tilting::after {
+  opacity: 1;
+}
+
+/* Edge glow — appears on the side facing the cursor */
+.tilt-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: conic-gradient(
+    from calc(((var(--mx, 50) - 50) * 3.6deg) + 180deg),
+    transparent 0deg,
+    rgba(34, 197, 94, 0.25) 30deg,
+    transparent 60deg,
+    transparent 360deg
+  );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  padding: 1px;
+}
+.tilt-card.is-tilting::before {
+  opacity: 1;
+}
+
+/* Dynamic shadow — shifts based on tilt direction */
+.tilt-card.is-tilting {
+  box-shadow:
+    calc((var(--mx, 50) - 50) * -0.4px) calc((var(--my, 50) - 50) * -0.4px) 20px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(34, 197, 94, calc(var(--glare-opacity, 0) * 0.15));
+}
+
+/* Inner elements pop forward in 3D space */
+.tilt-card-inner {
+  transform: translateZ(0);
+  transition: transform 0.4s var(--ease-elastic);
+  position: relative;
+  z-index: 1;
+}
+.tilt-card.is-tilting .tilt-card-inner {
+  transform: translateZ(20px);
+}
+
+/* Staggered inner pop for secondary elements */
+.tilt-card.is-tilting .tilt-card-inner > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+.tilt-card.is-tilting .tilt-card-inner > *:nth-child(2) {
+  transition-delay: 30ms;
+  transform: translateZ(12px);
+}
+.tilt-card.is-tilting .tilt-card-inner > *:nth-child(3) {
+  transition-delay: 60ms;
+  transform: translateZ(8px);
+}
+
+/* Reset inner elements when not tilting */
+.tilt-card:not(.is-tilting) .tilt-card-inner > * {
+  transform: translateZ(0);
+  transition-delay: 0ms;
 }
 
 /* ─── Marquee (infinite scroll row) for tech stacks / logos ────────
@@ -871,11 +969,11 @@ textarea.input { min-height: 140px; resize: vertical; }
   .hero-content { gap: 3rem; }
   .hero-portrait-img { max-width: 340px; }
   .skills-vortex { grid-template-columns: 1fr; }
-  .case-study-inner { grid-template-columns: 1fr; gap: 3rem; }
-  .case-study-phones { min-height: 380px; }
-  .phone-mockup--main { width: 220px; }
-  .phone-mockup--back { width: 170px; }
-  .phone-arrow { width: 34px; height: 34px; min-width: 34px; }
+  .case-study-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .case-study-phones { min-height: 300px; }
+  .phone-mockup--main { width: 180px; }
+  .phone-mockup--back { width: 140px; }
+  .phone-arrow { width: 30px; height: 30px; min-width: 30px; }
   .case-study-stats { grid-template-columns: repeat(4, 1fr); }
   .case-study-content { align-items: center; text-align: center; }
   .tech-badges { justify-content: center; }
@@ -897,18 +995,18 @@ textarea.input { min-height: 140px; resize: vertical; }
   .hero-actions { justify-content: center; }
   .about-grid { grid-template-columns: 1fr; gap: 3rem; }
   .skills-vortex { grid-template-columns: 1fr; gap: 1.5rem; }
-  .case-study { padding: 3rem 1.5rem; }
-  .case-study-inner { gap: 2rem; }
-  .case-study-phones { min-height: 320px; }
-  .phone-mockup--main { width: 180px; }
+  .case-study { padding: 2rem 1.25rem; }
+  .case-study-inner { gap: 1.5rem; }
+  .case-study-phones { min-height: 260px; }
+  .phone-mockup--main { width: 160px; }
   .phone-mockup--back { display: none; }
   .phone-arrow { display: none; }
   .float-card { display: none; }
   .case-study-stats { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-  .case-study-title { font-size: 1.75rem; }
-  .case-study-desc { font-size: 0.95rem; }
-  .tech-badge { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
-  .feature-card { padding: 0.75rem; }
+  .case-study-title { font-size: 1.4rem; }
+  .case-study-desc { font-size: 0.9rem; }
+  .tech-badge { padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+  .feature-card { padding: 0.6rem; }
   .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
   .contact-row { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
@@ -920,8 +1018,8 @@ textarea.input { min-height: 140px; resize: vertical; }
   .hero-actions .btn { width: 100%; justify-content: center; }
   .about-stats { grid-template-columns: 1fr; }
   .footer-socials { justify-content: center; }
-  .case-study { padding: 2rem 1rem; }
-  .phone-mockup--main { width: 160px; }
+  .case-study { padding: 1.5rem 1rem; }
+  .phone-mockup--main { width: 140px; }
   .phone-dots { gap: 0.35rem; }
   .phone-dot { width: 6px; height: 6px; }
   .phone-dot.active { width: 18px; }

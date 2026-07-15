@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect } from "react";
 
 const nameWords = ["Jed Nikko"];
 const surnameLetters = "San Agustin".split("");
@@ -50,6 +50,7 @@ const portraitInnerStyle: React.CSSProperties = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  transition: "transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
 };
 
 const socialsContainerStyle: React.CSSProperties = {
@@ -80,52 +81,94 @@ const BLOB_KEYFRAMES = `
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement>(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const portraitRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef(0);
+  const targetTilt = useRef({ x: 0, y: 0 });
+  const currentTilt = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const hero = heroRef.current;
-    if (!hero) return;
+    const portrait = portraitRef.current;
+    if (!hero || !portrait) return;
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    let running = false;
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+    const animate = () => {
+      currentTilt.current.x = lerp(currentTilt.current.x, targetTilt.current.x, 0.1);
+      currentTilt.current.y = lerp(currentTilt.current.y, targetTilt.current.y, 0.1);
+
+      const rx = currentTilt.current.x;
+      const ry = currentTilt.current.y;
+
+      hero.style.setProperty("--hero-rx", `${rx}deg`);
+      hero.style.setProperty("--hero-ry", `${ry}deg`);
+
+      portrait.style.transform = `rotateX(${rx * 0.5}deg) rotateY(${ry * 0.5}deg)`;
+
+      const settled =
+        Math.abs(currentTilt.current.x - targetTilt.current.x) < 0.01 &&
+        Math.abs(currentTilt.current.y - targetTilt.current.y) < 0.01;
+
+      if (settled && targetTilt.current.x === 0 && targetTilt.current.y === 0) {
+        hero.style.setProperty("--hero-rx", "0deg");
+        hero.style.setProperty("--hero-ry", "0deg");
+        portrait.style.transform = "";
+        running = false;
+        return;
+      }
+
+      rafId.current = requestAnimationFrame(animate);
+    };
+
+    const startLoop = () => {
+      if (!running) {
+        running = true;
+        rafId.current = requestAnimationFrame(animate);
+      }
+    };
 
     const onMove = (e: MouseEvent) => {
       const rect = hero.getBoundingClientRect();
       const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
       const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-      setTilt({ x: y * -6, y: x * 6 });
+      targetTilt.current = { x: y * -6, y: x * 6 };
+      startLoop();
     };
 
-    const onLeave = () => setTilt({ x: 0, y: 0 });
+    const onLeave = () => {
+      targetTilt.current = { x: 0, y: 0 };
+      startLoop();
+    };
 
     hero.addEventListener("mousemove", onMove);
     hero.addEventListener("mouseleave", onLeave);
     return () => {
       hero.removeEventListener("mousemove", onMove);
       hero.removeEventListener("mouseleave", onLeave);
+      cancelAnimationFrame(rafId.current);
     };
   }, []);
 
-  const portraitTransform = useMemo(
-    () => `rotateX(${tilt.x * 0.5}deg) rotateY(${tilt.y * 0.5}deg)`,
-    [tilt.x, tilt.y]
-  );
-
-  const socialIconBaseStyle: React.CSSProperties = useMemo(
-    () => ({
-      position: "absolute" as const,
-      pointerEvents: "auto" as const,
-      width: 44,
-      height: 44,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: "var(--radius-full)",
-      border: "1px solid var(--border)",
-      background: "var(--surface)",
-      color: "var(--text-secondary)",
-      boxShadow: "var(--shadow-md)",
-      transition: "all 0.3s var(--ease-spring)",
-    }),
-    []
-  );
+  const socialIconBaseStyle: React.CSSProperties = {
+    position: "absolute" as const,
+    pointerEvents: "auto" as const,
+    width: 44,
+    height: 44,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "var(--radius-full)",
+    border: "1px solid var(--border)",
+    background: "var(--surface)",
+    color: "var(--text-secondary)",
+    boxShadow: "var(--shadow-md)",
+    transition: "all 0.3s var(--ease-spring)",
+  };
 
   return (
     <section className="hero" id="home" ref={heroRef}>
@@ -141,18 +184,10 @@ export default function Hero() {
               {nameWords[0].split("").map((ch, ci) => (
                 <span
                   key={ci}
-                  className="kinetic-letter"
-                  style={
-                    {
-                      "--i": ci,
-                      display: "inline-block",
-                      transform: `perspective(600px) rotateX(${tilt.x}deg)`,
-                      transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                      transitionDelay: `${ci * 30}ms`,
-                    } as React.CSSProperties
-                  }
+                  className="kinetic-letter hero-letter"
+                  style={{ "--i": ci } as React.CSSProperties}
                 >
-                  {ch}
+                  {ch === " " ? "\u00A0" : ch}
                 </span>
               ))}
             </span>
@@ -161,16 +196,8 @@ export default function Hero() {
               {surnameLetters.map((ch, ci) => (
                 <span
                   key={ci}
-                  className="kinetic-letter"
-                  style={
-                    {
-                      "--i": ci + 4,
-                      display: "inline-block",
-                      transform: `perspective(600px) rotateX(${tilt.x}deg)`,
-                      transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
-                      transitionDelay: `${(ci + 4) * 30}ms`,
-                    } as React.CSSProperties
-                  }
+                  className="kinetic-letter hero-letter"
+                  style={{ "--i": ci + 4 } as React.CSSProperties}
                 >
                   {ch === " " ? "\u00A0" : ch}
                 </span>
@@ -233,11 +260,8 @@ export default function Hero() {
           </div>
 
           <div
-            style={{
-              ...portraitInnerStyle,
-              transform: portraitTransform,
-              transition: "transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-            }}
+            ref={portraitRef}
+            style={portraitInnerStyle}
           >
             <div className="hero-portrait-ring" />
             <div className="hero-portrait-glow" />

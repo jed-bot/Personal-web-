@@ -2,6 +2,28 @@
 import { motion } from "framer-motion";
 import { sectionFadeUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { socials } from "@/data/profile";
+import useTilt from "@/hooks/useTilt";
+
+function SocialIcon({ s }: { s: (typeof socials)[number] }) {
+  const tiltRef = useTilt<HTMLAnchorElement>({ intensity: 1.5 });
+
+  return (
+    <motion.a
+      key={s.label}
+      href={s.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="footer-social tilt-card"
+      ref={tiltRef}
+      aria-label={s.label}
+      variants={staggerItem}
+    >
+      <div className="tilt-card-inner">
+        {s.icon}
+      </div>
+    </motion.a>
+  );
+}
 
 export default function Footer() {
   return (
@@ -24,19 +46,7 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           {socials.map((s) => (
-            <motion.a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-social"
-              aria-label={s.label}
-              variants={staggerItem}
-              whileHover={{ y: -4, borderColor: "rgba(34,197,94,0.4)" }}
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
-            >
-              {s.icon}
-            </motion.a>
+            <SocialIcon key={s.label} s={s} />
           ))}
         </motion.div>
       </div>

@@ -4,6 +4,7 @@ import { staggerContainer, staggerItem, sectionFadeUp, sectionFadeLeft } from "@
 import { stack } from "@/data/tech";
 import { aboutStats } from "@/data/profile";
 import { useRef, useEffect, useState } from "react";
+import useTilt from "@/hooks/useTilt";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef(null);
@@ -37,6 +38,23 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
     <span ref={ref} className="about-stat-num">
       {display}{suffix}
     </span>
+  );
+}
+
+function StatCard({ s }: { s: (typeof aboutStats)[number] }) {
+  const tiltRef = useTilt<HTMLDivElement>({ intensity: 0.6 });
+
+  return (
+    <motion.div
+      className="about-stat tilt-card"
+      ref={tiltRef}
+      variants={staggerItem}
+    >
+      <div className="tilt-card-inner">
+        <AnimatedCounter target={s.num} suffix={s.suffix || ""} />
+        <div className="about-stat-label">{s.label}</div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -133,20 +151,7 @@ export default function About() {
               style={{ y: statsY, perspective: "800px", transformStyle: "preserve-3d" } as any}
             >
               {aboutStats.map((s) => (
-                <motion.div
-                  key={s.label}
-                  className="about-stat"
-                  variants={staggerItem}
-                  whileHover={{
-                    y: -6,
-                    scale: 1.03,
-                    boxShadow: "0 12px 40px rgba(34,197,94,0.12)",
-                    transition: { type: "spring", stiffness: 400, damping: 25 },
-                  }}
-                >
-                  <AnimatedCounter target={s.num} suffix={s.suffix || ""} />
-                  <div className="about-stat-label">{s.label}</div>
-                </motion.div>
+                <StatCard key={s.label} s={s} />
               ))}
             </motion.div>
           </motion.div>

@@ -6,6 +6,7 @@ import { screenshots, techBadges, features, caseStudyStats, floatCards, APK_URL,
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "@/icons/ui";
 import { GitHubIcon } from "@/icons/social";
 import { useRef, useState, useEffect, useCallback } from "react";
+import useTilt from "@/hooks/useTilt";
 
 function CaseStudyStat({ target, suffix = "" }: { target: number; suffix?: string }) {
   const ref = useRef(null);
@@ -31,6 +32,26 @@ function CaseStudyStat({ target, suffix = "" }: { target: number; suffix?: strin
   }, [target, isDecimal]);
 
   return <span ref={ref} className="case-stat-num">{display}{suffix}</span>;
+}
+
+function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
+  const tiltRef = useTilt<HTMLDivElement>({ intensity: 0.8 });
+
+  return (
+    <motion.div
+      className="feature-card tilt-card"
+      ref={tiltRef}
+      style={{ "--d": i } as React.CSSProperties}
+    >
+      <div className="tilt-card-inner" style={{ display: "flex", gap: "1rem" }}>
+        <div className="feature-card-icon">{f.icon}</div>
+        <div>
+          <h4>{f.title}</h4>
+          <p>{f.desc}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 function FloatCard({ icon, label, className }: { icon: React.ReactNode; label: string; className: string }) {
@@ -174,23 +195,7 @@ export default function CaseStudy() {
 
               <div className="feature-highlights" data-stagger="" style={{ perspective: "800px", transformStyle: "preserve-3d" } as React.CSSProperties}>
                 {features.map((f, i) => (
-                  <motion.div
-                    key={f.title}
-                    className="feature-card"
-                    style={{ "--d": i } as React.CSSProperties}
-                    whileHover={{
-                      y: -6,
-                      scale: 1.02,
-                      boxShadow: "0 12px 40px rgba(34,197,94,0.15)",
-                      transition: { type: "spring", stiffness: 400, damping: 25 },
-                    }}
-                  >
-                    <div className="feature-card-icon">{f.icon}</div>
-                    <div>
-                      <h4>{f.title}</h4>
-                      <p>{f.desc}</p>
-                    </div>
-                  </motion.div>
+                  <FeatureCard key={f.title} f={f} i={i} />
                 ))}
               </div>
 

@@ -1,30 +1,27 @@
 "use client";
 import { navLinks } from "@/data/profile";
 import { useActiveSection } from "@/hooks/useActiveSection";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import useTilt from "@/hooks/useTilt";
+
+function NavLink({ l, active }: { l: (typeof navLinks)[number]; active: boolean }) {
+  const tiltRef = useTilt<HTMLAnchorElement>({ intensity: 0.4 });
+
+  return (
+    <a
+      ref={tiltRef}
+      href={l.href}
+      className={`nav-link tilt-card${active ? " active" : ""}`}
+      style={{ padding: "0.5rem 0.75rem", borderRadius: "var(--radius-sm)" } as React.CSSProperties}
+    >
+      {l.label}
+    </a>
+  );
+}
 
 export default function Nav() {
   const { scrolled, active } = useActiveSection(navLinks);
-  const barRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          if (barRef.current) {
-            const h = document.documentElement.scrollHeight - window.innerHeight;
-            barRef.current.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`;
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     if (open) {
@@ -37,7 +34,7 @@ export default function Nav() {
 
   return (
     <>
-      <div className="scroll-progress-bar" ref={barRef} />
+      <div className="scroll-progress-bar" />
       <nav className={`nav${scrolled ? " scrolled" : ""}`}>
         <div className="container nav-inner">
           <a href="#" className="nav-logo" onClick={() => setOpen(false)}>
@@ -45,13 +42,7 @@ export default function Nav() {
           </a>
           <div className="nav-links">
             {navLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className={`nav-link${active === l.href ? " active" : ""}`}
-              >
-                {l.label}
-              </a>
+              <NavLink key={l.href} l={l} active={active === l.href} />
             ))}
           </div>
           <button

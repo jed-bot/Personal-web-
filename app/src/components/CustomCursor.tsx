@@ -18,17 +18,12 @@ export default function CustomCursor() {
     const ring = ringRef.current;
     if (!dot || !ring) return;
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let ringX = 0;
-    let ringY = 0;
+    let mouseX = -100;
+    let mouseY = -100;
+    let ringX = -100;
+    let ringY = -100;
     let raf: number;
-
-    const onMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)`;
-    };
+    let running = false;
 
     const animate = () => {
       ringX += (mouseX - ringX) * 0.15;
@@ -37,12 +32,43 @@ export default function CustomCursor() {
       raf = requestAnimationFrame(animate);
     };
 
+    const startLoop = () => {
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    const onMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dot.style.transform = `translate(${mouseX - 3}px, ${mouseY - 3}px)`;
+    };
+
+    const onEnter = () => startLoop();
+    const onLeave = () => {
+      mouseX = -100;
+      mouseY = -100;
+      dot.style.transform = "translate(-100px, -100px)";
+      ring.style.transform = "translate(-120px, -120px)";
+      stopLoop();
+    };
+
     window.addEventListener("mousemove", onMove);
-    raf = requestAnimationFrame(animate);
+    document.addEventListener("mouseenter", onEnter);
+    document.addEventListener("mouseleave", onLeave);
+    startLoop();
 
     return () => {
       window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(raf);
+      document.removeEventListener("mouseenter", onEnter);
+      document.removeEventListener("mouseleave", onLeave);
+      stopLoop();
     };
   }, []);
 

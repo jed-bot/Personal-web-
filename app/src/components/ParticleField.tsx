@@ -26,6 +26,7 @@ export default function ParticleField() {
     const particles: Particle[] = [];
     const count = 60;
     let raf: number;
+    let running = false;
 
     const resize = () => {
       w = canvas.width = window.innerWidth;
@@ -61,18 +62,43 @@ export default function ParticleField() {
         ctx.fillStyle = `rgba(34, 197, 94, ${p.opacity})`;
         ctx.fill();
       }
-      raf = requestAnimationFrame(draw);
+      if (running) raf = requestAnimationFrame(draw);
     };
+
+    const start = () => {
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(draw);
+      }
+    };
+
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    const onVisibility = () => {
+      if (document.hidden) stop(); else start();
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) start(); else stop(); },
+      { threshold: 0 }
+    );
 
     const onResize = () => { resize(); init(); };
 
     resize();
     init();
-    draw();
+    observer.observe(canvas);
+    document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("resize", onResize);
+    start();
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("resize", onResize);
     };
   }, [reduced]);
