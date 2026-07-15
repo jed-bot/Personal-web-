@@ -197,7 +197,7 @@ p { color: var(--text-secondary); line-height: 1.5; }
   background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 40%);
 }
 .card:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.08); }
-.skill-card { text-align: center; padding: 3rem 2rem; }
+.skill-card { text-align: center; padding: 3rem 2rem; will-change: transform, border-color; contain: layout style paint; }
 .skill-card:hover { transform: translateY(-8px) translateZ(0); border-color: rgba(34,197,94,0.15); box-shadow: 0 24px 60px -15px rgba(0,0,0,0.4), 0 0 0 1px rgba(34,197,94,0.1); }
 .skill-icon {
   width: 56px; height: 56px; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;

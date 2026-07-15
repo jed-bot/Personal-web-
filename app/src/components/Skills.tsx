@@ -4,8 +4,9 @@ import { motion } from "framer-motion";
 import { staggerContainer, staggerItem, sectionFadeUp } from "@/lib/animations";
 import { skills } from "@/data/tech";
 import useTilt from "@/hooks/useTilt";
+import { memo } from "react";
 
-function SkillCard({ s }: { s: (typeof skills)[number] }) {
+const SkillCard = memo(function SkillCard({ s }: { s: (typeof skills)[number] }) {
   const tiltRef = useTilt<HTMLDivElement>({ intensity: 1.2 });
 
   return (
@@ -28,7 +29,7 @@ function SkillCard({ s }: { s: (typeof skills)[number] }) {
       </div>
     </motion.div>
   );
-}
+});
 
 export default function Skills() {
   const sectionRef = useRef(null);

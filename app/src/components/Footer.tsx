@@ -3,8 +3,9 @@ import { motion } from "framer-motion";
 import { sectionFadeUp, staggerContainer, staggerItem } from "@/lib/animations";
 import { socials } from "@/data/profile";
 import useTilt from "@/hooks/useTilt";
+import { memo } from "react";
 
-function SocialIcon({ s }: { s: (typeof socials)[number] }) {
+const SocialIcon = memo(function SocialIcon({ s }: { s: (typeof socials)[number] }) {
   const tiltRef = useTilt<HTMLAnchorElement>({ intensity: 1.5 });
 
   return (
@@ -23,7 +24,7 @@ function SocialIcon({ s }: { s: (typeof socials)[number] }) {
       </div>
     </motion.a>
   );
-}
+});
 
 export default function Footer() {
   return (

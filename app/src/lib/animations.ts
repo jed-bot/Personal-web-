@@ -1,19 +1,19 @@
 "use client";
-import type { Variants, Transition } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 const easeOut = [0.16, 1, 0.3, 1] as const;
 
 /* ── Sections ─────────────────────────────────────────────────────── */
 export const sectionFadeUp: Variants = {
-  hidden: { opacity: 0, y: 40, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 40, filter: "blur(3px)" },
   visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", stiffness: 100, damping: 16 } },
 };
 export const sectionFadeLeft: Variants = {
-  hidden: { opacity: 0, x: -40, filter: "blur(6px)" },
+  hidden: { opacity: 0, x: -40, filter: "blur(3px)" },
   visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { type: "spring", stiffness: 100, damping: 16 } },
 };
 export const sectionFadeRight: Variants = {
-  hidden: { opacity: 0, x: 40, filter: "blur(6px)" },
+  hidden: { opacity: 0, x: 40, filter: "blur(3px)" },
   visible: { opacity: 1, x: 0, filter: "blur(0px)", transition: { type: "spring", stiffness: 100, damping: 16 } },
 };
 
@@ -23,7 +23,7 @@ export const staggerContainer: Variants = {
   visible: { transition: { staggerChildren: 0.1, delayChildren: 0.15 } },
 };
 export const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 30, scale: 0.95, filter: "blur(4px)" },
+  hidden: { opacity: 0, y: 30, scale: 0.95, filter: "blur(2px)" },
   visible: {
     opacity: 1,
     y: 0,

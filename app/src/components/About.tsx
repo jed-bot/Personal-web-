@@ -3,15 +3,16 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { staggerContainer, staggerItem, sectionFadeUp, sectionFadeLeft } from "@/lib/animations";
 import { stack } from "@/data/tech";
 import { aboutStats } from "@/data/profile";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import useTilt from "@/hooks/useTilt";
 
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const ref = useRef(null);
-  const [display, setDisplay] = useState("0");
+  const ref = useRef<HTMLSpanElement>(null);
   const isDecimal = target % 1 !== 0;
 
   useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -21,7 +22,7 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
             const t = Math.min((now - start) / dur, 1);
             const eased = 1 - Math.pow(1 - t, 3);
             const val = eased * target;
-            setDisplay(isDecimal ? val.toFixed(1) : String(Math.round(val)));
+            el.textContent = (isDecimal ? val.toFixed(1) : String(Math.round(val))) + suffix;
             if (t < 1) requestAnimationFrame(tick);
           };
           requestAnimationFrame(tick);
@@ -30,13 +31,13 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
       },
       { threshold: 0.5 }
     );
-    if (ref.current) obs.observe(ref.current);
+    obs.observe(el);
     return () => obs.disconnect();
-  }, [target, isDecimal]);
+  }, [target, isDecimal, suffix]);
 
   return (
     <span ref={ref} className="about-stat-num">
-      {display}{suffix}
+      0{suffix}
     </span>
   );
 }
