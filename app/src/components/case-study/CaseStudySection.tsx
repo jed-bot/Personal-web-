@@ -1,87 +1,36 @@
 "use client";
-import { motion, animate } from "framer-motion";
-import { sectionFadeUp, easeConfig } from "@/lib/animations";
-import { useCarousel } from "@/hooks/useCarousel";
-import { screenshots, techBadges, features, caseStudyStats, floatCards, APK_URL, GITHUB_URL } from "@/data/case-study";
-import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from "@/icons/ui";
-import { GitHubIcon } from "@/icons/social";
-import { useRef, useState, useEffect, useCallback } from "react";
-import useTilt from "@/hooks/useTilt";
 
-function CaseStudyStat({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const ref = useRef(null);
-  const [display, setDisplay] = useState("0");
-  const isDecimal = target % 1 !== 0;
+import { useRef } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { sectionFadeUp } from '@/lib/animations';
+import { useCarousel } from '@/hooks/useCarousel';
+import { screenshots, techBadges, features, caseStudyStats, floatCards, APK_URL, GITHUB_URL } from '@/data/caseStudy';
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from '@/icons/ui';
+import { GitHubIcon } from '@/icons/social';
+import { FeatureCard } from './FeatureCard';
+import { FloatCard } from './FloatCard';
+import { CaseStudyStat } from './CaseStudyStat';
 
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          animate(0, target, {
-            duration: 1.2,
-            ease: easeConfig,
-            onUpdate: (v) => setDisplay(isDecimal ? v.toFixed(1) : String(Math.round(v))),
-          });
-          obs.disconnect();
-        }
-      },
-      { threshold: 0.5 }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [target, isDecimal]);
-
-  return <span ref={ref} className="case-stat-num">{display}{suffix}</span>;
-}
-
-function FeatureCard({ f, i }: { f: (typeof features)[number]; i: number }) {
-  const tiltRef = useTilt<HTMLDivElement>({ intensity: 0.8 });
-
-  return (
-    <motion.div
-      className="feature-card tilt-card"
-      ref={tiltRef}
-      style={{ "--d": i } as React.CSSProperties}
-    >
-      <div className="tilt-card-inner" style={{ display: "flex", gap: "1rem" }}>
-        <div className="feature-card-icon">{f.icon}</div>
-        <div>
-          <h4>{f.title}</h4>
-          <p>{f.desc}</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function FloatCard({ icon, label, className }: { icon: React.ReactNode; label: string; className: string }) {
-  return (
-    <div className={`float-card ${className}`}>
-      {icon}
-      {label}
-    </div>
-  );
-}
-
-export default function CaseStudy() {
+export default function CaseStudySection() {
   const { current, prev, next, goTo } = useCarousel(screenshots.length);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
-  }, []);
+  };
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
-  }, []);
+  };
 
-  const handleTouchEnd = useCallback(() => {
+  const handleTouchEnd = () => {
     const diff = touchStartX.current - touchEndX.current;
     const threshold = 50;
     if (diff > threshold) next();
     else if (diff < -threshold) prev();
-  }, [next, prev]);
+  };
 
   return (
     <section className="section" id="projects">
@@ -91,7 +40,7 @@ export default function CaseStudy() {
           variants={sectionFadeUp}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={{ once: true, margin: '-80px' }}
         >
           <span className="section-label">Featured Project</span>
           <h2 className="section-title">Lutong Bahay</h2>
@@ -105,18 +54,32 @@ export default function CaseStudy() {
           variants={sectionFadeUp}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
+          viewport={{ once: true, margin: '-80px' }}
         >
           <div className="case-study-bg">
             <div className="case-study-glow" />
           </div>
           <div className="case-study-inner">
-            <div className="case-study-phones parallax-slow" style={{ perspective: "1000px", transformStyle: "preserve-3d" } as React.CSSProperties}>
+            <div className="case-study-phones parallax-slow" style={{ perspective: '1000px', transformStyle: 'preserve-3d' } as React.CSSProperties}>
               <div className="phone-mockup phone-mockup--back phone-mockup--blur-1">
-                <img src="/Screenshot_3.jpg" alt="" />
+                <Image
+                  src="/Screenshot_3.jpg"
+                  alt="Lutong Bahay app screenshot"
+                  width={220}
+                  height={477}
+                  sizes="170px"
+                  loading="lazy"
+                />
               </div>
               <div className="phone-mockup phone-mockup--back phone-mockup--blur-2">
-                <img src="/Screenshot_4.jpg" alt="" />
+                <Image
+                  src="/Screenshot_4.jpg"
+                  alt="Lutong Bahay app screenshot"
+                  width={220}
+                  height={477}
+                  sizes="170px"
+                  loading="lazy"
+                />
               </div>
 
               <div className="phone-gallery">
@@ -133,15 +96,18 @@ export default function CaseStudy() {
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
-                  style={{ touchAction: "pan-y", cursor: "grab" } as React.CSSProperties}
+                  style={{ touchAction: 'pan-y', cursor: 'grab' } as React.CSSProperties}
                 >
                   <div className="phone-mockup-glow" />
-                  <img
+                  <Image
                     key={current}
                     src={screenshots[current].src}
                     alt={screenshots[current].alt}
                     className="phone-mockup-img"
-                    draggable={false}
+                    width={280}
+                    height={607}
+                    sizes="(max-width: 768px) 160px, (max-width: 1024px) 180px, 220px"
+                    priority={current === 0}
                   />
                 </div>
 
@@ -158,7 +124,7 @@ export default function CaseStudy() {
                 {screenshots.map((_, i) => (
                   <button
                     key={i}
-                    className={`phone-dot${i === current ? " active" : ""}`}
+                    className={`phone-dot${i === current ? ' active' : ''}`}
                     onClick={() => goTo(i)}
                     aria-label={`Screenshot ${i + 1}`}
                   />
@@ -187,22 +153,22 @@ export default function CaseStudy() {
 
               <div className="tech-badges" data-stagger="">
                 {techBadges.map((t, i) => (
-                  <span key={t.name} className="tech-badge" style={{ "--d": i } as React.CSSProperties}>
+                  <span key={t.name} className="tech-badge" style={{ '--d': i } as React.CSSProperties}>
                     {t.icon} {t.name}
                   </span>
                 ))}
               </div>
 
-              <div className="feature-highlights" data-stagger="" style={{ perspective: "800px", transformStyle: "preserve-3d" } as React.CSSProperties}>
+              <div className="feature-highlights" data-stagger="" style={{ perspective: '800px', transformStyle: 'preserve-3d' } as React.CSSProperties}>
                 {features.map((f, i) => (
-                  <FeatureCard key={f.title} f={f} i={i} />
+                  <FeatureCard key={f.title} feature={f} index={i} />
                 ))}
               </div>
 
               <div className="case-study-stats" data-stagger="">
                 {caseStudyStats.map((s, i) => (
-                  <div key={s.label} className="case-stat" style={{ "--d": i } as React.CSSProperties}>
-                    <CaseStudyStat target={s.num} suffix={s.suffix || ""} />
+                  <div key={s.label} className="case-stat" style={{ '--d': i } as React.CSSProperties}>
+                    <CaseStudyStat target={s.num} suffix={s.suffix || ''} />
                     <div className="case-stat-label">{s.label}</div>
                   </div>
                 ))}

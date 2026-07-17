@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
-import CustomCursor from "@/components/CustomCursor";
-import SmoothScroll from "@/components/SmoothScroll";
+import SmoothScroll from "@/components/shared/SmoothScroll";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,7 +24,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: "#050816",
+  themeColor: "#0F0F0F",
   viewportFit: "cover",
 };
 
@@ -37,7 +36,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body>
-        <CustomCursor />
         <SmoothScroll />
         {children}
       </body>

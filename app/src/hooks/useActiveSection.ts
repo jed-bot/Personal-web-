@@ -1,15 +1,16 @@
-"use client";
-import { useState, useEffect } from "react";
-import type { NavLink } from "@/types";
+'use client';
+
+import { useState, useEffect } from 'react';
+import type { NavLink } from '@/core/types';
 
 export function useActiveSection(links: NavLink[]) {
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState(links[0]?.href ?? "#about");
+  const [active, setActive] = useState(links[0]?.href ?? '#about');
 
   useEffect(() => {
-    const elements = links.map((l) => ({
+    const elements = links.map(l => ({
       href: l.href,
-      el: document.getElementById(l.href.replace("#", "")),
+      el: document.getElementById(l.href.replace('#', '')),
     }));
 
     let ticking = false;
@@ -33,9 +34,9 @@ export function useActiveSection(links: NavLink[]) {
       }
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, [links]);
 
   return { scrolled, active };

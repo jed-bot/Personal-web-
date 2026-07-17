@@ -1,32 +1,36 @@
-"use client";
-import { motion } from "framer-motion";
-import { sectionFadeUp, staggerContainer, staggerItem } from "@/lib/animations";
-import { socials } from "@/data/profile";
-import useTilt from "@/hooks/useTilt";
-import { memo } from "react";
+'use client';
 
-const SocialIcon = memo(function SocialIcon({ s }: { s: (typeof socials)[number] }) {
-  const tiltRef = useTilt<HTMLAnchorElement>({ intensity: 1.5 });
+import { motion } from 'framer-motion';
+import { sectionFadeUp, staggerContainer, staggerItem } from '@/lib/animations';
+import { useProfileRepository } from '@/hooks/useRepositories';
+import { useTilt } from '@/hooks/useTilt';
+import { memo } from 'react';
+
+const SocialIcon = memo(function SocialIcon({ social }: { social: { label: string; href: string; icon: React.ReactNode } }) {
+  const [ref] = useTilt<HTMLAnchorElement>({ intensity: 1.5 });
 
   return (
     <motion.a
-      key={s.label}
-      href={s.href}
+      key={social.label}
+      href={social.href}
       target="_blank"
       rel="noopener noreferrer"
       className="footer-social tilt-card"
-      ref={tiltRef}
-      aria-label={s.label}
+      ref={ref}
+      aria-label={social.label}
       variants={staggerItem}
     >
       <div className="tilt-card-inner">
-        {s.icon}
+        {social.icon}
       </div>
     </motion.a>
   );
 });
 
-export default function Footer() {
+export default function FooterSection() {
+  const { getSocials } = useProfileRepository();
+  const socials = getSocials();
+
   return (
     <footer className="footer">
       <div className="container footer-inner">
@@ -47,7 +51,7 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           {socials.map((s) => (
-            <SocialIcon key={s.label} s={s} />
+            <SocialIcon key={s.label} social={s} />
           ))}
         </motion.div>
       </div>
