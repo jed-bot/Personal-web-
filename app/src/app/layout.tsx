@@ -6,11 +6,13 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font",
+  display: "swap",
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-display",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

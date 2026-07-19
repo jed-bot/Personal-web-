@@ -29,20 +29,20 @@ export default function AboutSection() {
     <section className="section" id="about" ref={sectionRef}>
       <div className="container">
         <div className="about-grid">
-          <motion.div
-            className="about-stack"
-            variants={sectionFadeLeft}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-80px' }}
-            style={{ y: stackY } as any}
-          >
+<motion.div
+              className="about-stack"
+              variants={sectionFadeLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-80px' }}
+              style={{ y: stackY, willChange: 'transform' } as any}
+            >
             {stack.map((s) => (
               <StackGroup key={s.category} group={s} />
             ))}
           </motion.div>
 
-          <motion.div className="about-text" style={{ y: textY } as any}>
+          <motion.div className="about-text" style={{ y: textY, willChange: 'transform' } as any}>
             <motion.span
               className="tag"
               variants={sectionFadeUp}
@@ -94,7 +94,7 @@ export default function AboutSection() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-60px' }}
-              style={{ y: statsY, perspective: '800px', transformStyle: 'preserve-3d' } as any}
+              style={{ y: statsY, perspective: '800px', transformStyle: 'preserve-3d', willChange: 'transform' } as any}
             >
               {stats.map((s, i) => (
                 <StatCard key={s.label} stat={s} index={i} />

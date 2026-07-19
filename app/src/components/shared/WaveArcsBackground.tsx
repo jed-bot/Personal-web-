@@ -39,6 +39,7 @@ interface CanvasState {
 
 function useCanvasAnimation({
     alpha = false,
+    deferStart = false,
     onSetup,
     onResize,
     onDraw,
@@ -46,6 +47,7 @@ function useCanvasAnimation({
     fps = 30,
 }: {
     alpha?: boolean;
+    deferStart?: boolean;
     onSetup?: (ctx: CanvasRenderingContext2D, state: CanvasState) => void;
     onResize?: (ctx: CanvasRenderingContext2D, state: CanvasState) => void;
     onDraw: (
@@ -102,19 +104,17 @@ function useCanvasAnimation({
         const minFrameInterval = 1000 / fpsRef.current;
 
         const loop = (timestamp: number) => {
-            const elapsed = timestamp - st.lastDrawTime;
-            if (elapsed >= minFrameInterval) {
+            if (timestamp - st.lastDrawTime >= minFrameInterval) {
                 st.lastDrawTime = timestamp;
                 st.frameCount += 1;
                 onDrawRef.current(ctx, st);
             }
-            // Always reschedule — never kill the loop
             st.animationId = requestAnimationFrame(loop);
         };
 
+        let canStart = !deferStart;
         const start = () => {
-            if (!st.isVisible || !st.isPageVisible) return;
-            if (st.animationId) return;
+            if (!canStart || st.animationId || !st.isVisible || !st.isPageVisible) return;
             st.animationId = requestAnimationFrame(loop);
         };
         const stop = () => {
@@ -123,6 +123,22 @@ function useCanvasAnimation({
                 st.animationId = 0;
             }
         };
+
+        let cancelIdle: (() => void) | undefined;
+        if (deferStart) {
+            const startNow = () => {
+                canStart = true;
+                cancelIdle = undefined;
+                start();
+            };
+            if (typeof requestIdleCallback !== "undefined") {
+                const id = requestIdleCallback(startNow);
+                cancelIdle = () => cancelIdleCallback(id);
+            } else {
+                const id = setTimeout(startNow, 200);
+                cancelIdle = () => clearTimeout(id);
+            }
+        }
 
         const onPageVis = () => {
             st.isPageVisible = document.visibilityState === "visible";
@@ -140,7 +156,7 @@ function useCanvasAnimation({
         setup();
         io.observe(container);
         onSetupRef.current?.(ctx, st);
-        start();
+        if (!deferStart) start();
 
         let resizeTimer: ReturnType<typeof setTimeout>;
         const onResizeEv = () => {
@@ -156,17 +172,19 @@ function useCanvasAnimation({
 
         return () => {
             stop();
+            cancelIdle?.();
             clearTimeout(resizeTimer);
             io.disconnect();
             window.removeEventListener("resize", onResizeEv);
             document.removeEventListener("visibilitychange", onPageVis);
         };
-    }, [alpha, resizeDebounce]);
+    }, [alpha, deferStart, resizeDebounce]);
 
     return { containerRef, canvasRef, stateRef };
 }
 
-interface WaveArcsBackgroundProps {
+interface InteractiveHeroCanvasProps {
+    backgroundColor?: string;
     lineColor?: string;
     lineWidth?: number;
     lineCount?: number;
@@ -175,77 +193,62 @@ interface WaveArcsBackgroundProps {
     interactive?: boolean;
 }
 
-export default function WaveArcsBackground({
-    lineColor = "rgba(160, 160, 180, 0.7)",
-    lineWidth = 1.5,
-    lineCount = 68,
+export default function InteractiveHeroCanvas({
+    backgroundColor = "#0A0A0A",
+    lineColor = "rgb(255, 255, 255)",
+    lineWidth = 1,
+    lineCount = 30,
     speed = 3,
-    glow = 10,
+    glow = 15,
     interactive = true,
-}: WaveArcsBackgroundProps) {
-    const isMobileRef = useRef(false);
-    const reducedMotionRef = useRef(false);
+}: InteractiveHeroCanvasProps) {
     const mouseRef = useRef({ y: 0, targetY: 0 });
 
     const { containerRef, canvasRef, stateRef } = useCanvasAnimation({
+        deferStart: true,
         fps: 30,
 
         onSetup: (_ctx, st) => {
-            isMobileRef.current = st.width < 768;
-            reducedMotionRef.current = window.matchMedia(
-                "(prefers-reduced-motion: reduce)"
-            ).matches;
             mouseRef.current.targetY = st.height / 2;
             mouseRef.current.y = st.height / 2;
         },
 
         onDraw: (e, t) => {
-            const isMobile = isMobileRef.current;
-            const reducedMotion = reducedMotionRef.current;
             const { width: r, height: i, frameCount: fc } = t;
             const mouse = mouseRef.current;
 
-            // Paint the background fill every frame so nothing disappears
-            e.fillStyle = "#0F0F0F";
+            mouse.y = mouse.y + (mouse.targetY - mouse.y) * 0.06;
+
+            e.fillStyle = backgroundColor;
             e.fillRect(0, 0, r, i);
 
-            if (!reducedMotion) {
-                mouse.y = mouse.y + (mouse.targetY - mouse.y) * 0.08;
-            }
-
+            const isMobile = r < 768;
+            const isLowEnd = navigator.hardwareConcurrency <= 2;
             const u = 55000 / glow;
             const { r: cr, g: cg, b: cb } = parseRGB(lineColor);
 
             e.save();
-            e.lineWidth = isMobile ? lineWidth * 0.6 : lineWidth;
+            e.lineWidth = lineWidth;
             e.translate(r / 2, i + (isMobile ? 60 : 40));
 
-            const f = interactive && !reducedMotion && !isMobile
-                ? map(mouse.y, 0, i, 1.2, -1.2)
-                : 0;
+            const f = interactive ? map(mouse.y, 0, i, 1.2, -1.2) : 0;
             const m = Math.max(320, Math.min(1440, r));
             const rate = map(m, 320, 1440, 0.002, 5e-4) * (speed / 5);
             const p = fc * rate;
             const h = r / 2;
 
-            // Mobile: fewer lines, desktop: full count
-            const x = isMobile
-                ? Math.round(lineCount * 0.45)
-                : reducedMotion
-                ? Math.round(lineCount * 0.6)
-                : lineCount;
+            // Reduce lines significantly on low-end/mobile
+            let linesToDraw = lineCount;
+            if (isMobile) linesToDraw = Math.round(lineCount * 0.4);
+            else if (isLowEnd) linesToDraw = Math.round(lineCount * 0.5);
 
-            for (let k = 0; k < x; k++) {
-                let ang = map(k, 0, x, 0, Math.PI) + p;
+            for (let k = 0; k < linesToDraw; k++) {
+                let ang = map(k, 0, linesToDraw, 0, Math.PI) + p;
                 ang %= Math.PI;
                 const l = (Math.tan(ang) - f) * i;
                 const a = Math.abs(l) / 2;
                 const yCenter = -i / 2 + l / 2;
-                const bright =
-                    Math.max(
-                        0,
-                        Math.min(255, map(Math.abs(l), 0, u, -20, 255))
-                    ) / 255;
+                const bright = Math.max(0, Math.min(255, map(Math.abs(l), 0, u, -20, 255))) / 255;
                 if (bright <= 0) continue;
 
                 e.strokeStyle = `rgba(${cr}, ${cg}, ${cb}, ${bright})`;
@@ -259,17 +262,18 @@ export default function WaveArcsBackground({
                 }
 
                 const c2 = Math.acos(Math.min(1, (h + 50) / a));
-                const segTotal = Math.max(Math.ceil(a / 160), 120);
+                // Reduce segments significantly for low-end
+                const segTotal = isLowEnd
+                    ? Math.max(Math.ceil(a / 300), 40)
+                    : Math.max(Math.ceil(a / 160), 80);
+
                 const spans: [number, number][] = [
                     [c2, Math.PI - c2],
                     [Math.PI + c2, TWO_PI - c2],
                 ];
                 for (const [start, end] of spans) {
                     const span = end - start;
-                    const n3 = Math.max(
-                        Math.ceil((span / TWO_PI) * segTotal),
-                        30
-                    );
+                    const n3 = Math.max(Math.ceil((span / TWO_PI) * segTotal), isLowEnd ? 20 : 40);
                     const step = span / n3;
                     e.beginPath();
                     for (let s = 0; s <= n3; s++) {
@@ -287,7 +291,7 @@ export default function WaveArcsBackground({
     });
 
     useEffect(() => {
-        if (!interactive || isMobileRef.current) return;
+        if (!interactive) return;
         const container = containerRef.current;
         if (!container) return;
         let rect = container.getBoundingClientRect();

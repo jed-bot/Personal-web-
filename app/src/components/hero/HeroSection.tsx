@@ -57,7 +57,7 @@ export default function HeroSection() {
       const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
       target.x = y * -6;
       target.y = x * 6;
-      startLoop();
+      if (!running) startLoop();
     };
 
     const onLeave = () => {
